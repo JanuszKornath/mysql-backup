@@ -24,7 +24,7 @@ mkdir -p "$BACKUP_LOCAL_DIR"
 # Backup erstellen
 mysqldump -u "$MYSQL_USER" -p"$MYSQL_PASS" --all-databases --single-transaction --quick --lock-tables=false > "$BACKUP_LOCAL_DIR/$FILENAME"
 if [ $? -ne 0 ]; then
-    echo "❌ Backup fehlgeschlagen!" | tee -a "$LOGFILE"
+    echo "Backup fehlgeschlagen!" | tee -a "$LOGFILE"
     echo "MySQL-Backup fehlgeschlagen am $TIMESTAMP" | mail -s "MySQL-Backup fehlgeschlagen" "$EMAIL_RECIPIENT"
     exit 2
 fi
@@ -35,7 +35,7 @@ gzip "$BACKUP_LOCAL_DIR/$FILENAME"
 # Übertragung per scp
 scp "$BACKUP_LOCAL_DIR/$FILENAME_GZ" "$REMOTE_USER@$REMOTE_HOST:$REMOTE_DIR"
 if [ $? -ne 0 ]; then
-    echo "❌ SCP-Übertragung fehlgeschlagen!" | tee -a "$LOGFILE"
+    echo "SCP-Übertragung fehlgeschlagen!" | tee -a "$LOGFILE"
     echo "MySQL-Backup-Übertragung fehlgeschlagen am $TIMESTAMP" | mail -s "MySQL-Backup: SCP fehlgeschlagen" "$EMAIL_RECIPIENT"
     exit 3
 fi
@@ -49,4 +49,4 @@ ssh "$REMOTE_USER@$REMOTE_HOST" "find '$REMOTE_DIR' -type f -name 'mysql_backup_
 # Lokales Archiv entfernen (nach erfolgreichem Transfer)
 rm -f "$BACKUP_LOCAL_DIR/$FILENAME_GZ"
 
-echo "✅ Backup abgeschlossen: $FILENAME_GZ" | tee -a "$LOGFILE"
+echo "Backup abgeschlossen: $FILENAME_GZ" | tee -a "$LOGFILE"
